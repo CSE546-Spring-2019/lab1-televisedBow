@@ -1,6 +1,9 @@
 #ifndef READ_H
 #define READ_H
 
-void test();
+#include <stdio.h>
+
+void openFile(char fileName[]);
+int getFileLength();
 
 #endif 
