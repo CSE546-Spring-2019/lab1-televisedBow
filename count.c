@@ -52,6 +52,7 @@ FileOp* initFileOp(char fileName[]){
 void freeFileOp(FileOp *f){
   if (f != NULL){
     free(f->buffer);
+    free(f->toReturnTo);
     free(f);
   }
 }
@@ -59,7 +60,7 @@ void freeFileOp(FileOp *f){
 void match(int offset, char SEARCH_CHAR[], FileOp *f, int searchCharOffset){
   if (searchCharOffset == 4){
     f->occ = f->occ++;
-    printf("SDF");
+    printf("FOUND");
   }
 
   
@@ -77,18 +78,20 @@ int main(){
   FileOp *f = initFileOp("test");
   char SEARCH_CHAR[] = "test";
 
-  while (f->finalized != NULL){
-    if (EOF == fgets(f->buffer, BUFF_SIZE, f->file)){
-      printf(READ_ERROR);
-      exit(1);
-    }
+  char c[] = "TEST";
+  printf("%d", 0b1010100 == c[0]);
+  // while (f->finalized != NULL){
+  //   if (EOF == fgets(f->buffer, BUFF_SIZE, f->file)){
+  //     printf(READ_ERROR);
+  //     exit(1);
+  //   }
 
-    int i;
-    for (i = 0; i < BUFF_SIZE; i++){
-      if (f->buffer[i] == SEARCH_CHAR[0] & 0xff);
-    }
+  //   int i;
+  //   for (i = 0; i < BUFF_SIZE; i++){
+  //     if (f->buffer[i] == SEARCH_CHAR[0] & 0xff);
+  //   }
 
-  }
+  // }
   freeFileOp(f);
   return 0;
 }
