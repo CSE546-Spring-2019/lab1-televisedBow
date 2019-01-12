@@ -36,7 +36,7 @@ int main(){
 
   		for (i = 0; i < BUFF_SIZE; i++){
 
-    		match(i, f, 0);
+    		match(0, f, 0);
 			f->absoluteLocation++;
 			move(f);
   		}

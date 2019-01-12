@@ -40,6 +40,8 @@ void readChars(FileOp *f){
     int read = fread(f->buffer, sizeof(char), BUFF_SIZE - MAX_SEARCH_SIZE  , f->file);
     printf("READ: %d\n", read);
     if (read != BUFF_SIZE){
+        // Null terms the array early
+        f->buffer[read] = '\0';
         f->finalized = TRUE;
     }
     firstRead = FALSE;
@@ -55,10 +57,11 @@ void freeFileOp(FileOp *f){
 }
 
 void move(FileOp *f){
-    printf("FTELL: %d\n", ftell(f->file));
     if (fseek(f->file, f->absoluteLocation, SEEK_SET) != 0){
         printf(READ_ERROR);
         exit(1);
     }
+    readChars(f);
+    printf("FTELL: %ld\n", ftell(f->file));
 }
 
