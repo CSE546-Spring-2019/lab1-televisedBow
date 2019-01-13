@@ -3,20 +3,23 @@
 
 #define MALLOC_ERROR "Error mallocing, please try again\n"
 #define READ_ERROR "Error reading file, please try again\n"
-#define BUFF_SIZE sizeof(char) * 4
+#define OPEN_ERROR "Error could not open file, please try again\n"
+#define CLOSE_ERROR "Error closing file\n"
+#define ARGS_ERROR "Incorrect arguments, please use \"./count <input-filename> <search-string> <output-filename>\"\n"
+#define SEARCH_ERROR "Incorrect search string, please limit it to 20 bytes or less\n"
+#define ERROR_WRITE "Error creating file for writing\n"
+#define ERROR_WRITE_CLOSE "Error closing write file\n"
 #define FALSE 0
 #define TRUE 1
-#define MAX_SEARCH_SIZE 2
+#define MAX_SEARCH_SIZE sizeof(char) * 20
 #include <stdio.h>
 
 typedef struct FileOp {
-  int fileSize;
+  long long int fileSize;
   FILE *file;
   int finalized;
   char *buffer;
-  char *tempBuff;
   long long int absoluteLocation;
-  int buffLoc;
   int occ;
 } FileOp;
 
