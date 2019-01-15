@@ -37,6 +37,7 @@ FileOp* initFileOp(char fileName[]){
  */
 void readChars(FileOp *f){
     // Clears buffer junk, could be done much better but meh 
+    free(f->buffer);
     f->buffer = calloc(MAX_SEARCH_SIZE, sizeof(MAX_SEARCH_SIZE*(sizeof(char))));
 
     int read = fread(f->buffer, sizeof(char), MAX_SEARCH_SIZE , f->file);
