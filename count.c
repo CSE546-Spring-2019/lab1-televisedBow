@@ -74,7 +74,7 @@ int main(int argc, char *argv[]){
     	match(0, f, argv[2]);
 		f->absoluteLocation++;
   	}
-    printf("Size of file is %lld\nNumber of mathces = %d\n", f->fileSize, f->occ);
+    printf("Size of file is %lld\nNumber of matches = %lld\n", f->fileSize, f->occ);
 
 	// Writes output
 	write(argv[3], f->fileSize, f->occ);
