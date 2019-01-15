@@ -20,7 +20,7 @@ typedef struct FileOp {
   int finalized;
   char *buffer;
   long long int absoluteLocation;
-  int occ;
+  long long int occ;
 } FileOp;
 
 FileOp* initFileOp(char fileName[]);
