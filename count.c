@@ -13,7 +13,14 @@
  * 
  */
 void match(int offset, FileOp *f, char searchString[]){
-	if (offset == strlen(searchString)){
+
+	// This doesn't get called when it should, fix it
+	if (((f->buffer[offset]) == (searchString[0] & 0xff)) && f->rewindSkip == FALSE && offset != 0){
+		f->absoluteLocation+= offset;
+		f->rewindSkip = TRUE;
+	}
+
+	if (offset == strlen(searchString) && (f->buffer[offset - 1] == (searchString[offset - 1] & 0xff))){
     	f->occ++;
   	} else if (f->buffer[offset] == (searchString[offset] & 0xff)){
     	match(++offset, f, searchString);
@@ -71,8 +78,21 @@ int main(int argc, char *argv[]){
 	// Counts until file is done proc
   	while (f->finalized != TRUE){
 		move(f);
+		printf("Before match abs: %lld\n", f->absoluteLocation);
     	match(0, f, argv[2]);
-		f->absoluteLocation++;
+		/**
+		 * Changes the absolute location to +MAX_SEARCH_SIZE to skip where there would be no searches
+		 * only if the rewindSkip var is set to TRUE, otherwise we use that absolute location 
+		 */
+		printf("After match abs: %lld\n", f->absoluteLocation);
+
+		if (f->rewindSkip == TRUE){
+			f->rewindSkip = FALSE;
+		}else{
+			f->absoluteLocation+= MAX_SEARCH_SIZE;
+		}
+		printf("After match and if logic abs: %lld\n", f->absoluteLocation);
+
   	}
     printf("Size of file is %lld\nNumber of matches = %lld\n", f->fileSize, f->occ);
 

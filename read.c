@@ -21,11 +21,13 @@ FileOp* initFileOp(char fileName[]){
         printf(OPEN_ERROR);
         exit(1);
     }
-
+    f->rewindSkip = FALSE;
     f->fileSize = 0;
+    f->found = FALSE;
     f->occ = 0;
     f->absoluteLocation = 0;
     f->finalized = FALSE;
+
 
     return f;
 }
