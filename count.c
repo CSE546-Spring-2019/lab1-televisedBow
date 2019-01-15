@@ -5,24 +5,48 @@
 #include <string.h>
 
 /**
- * Matching algo that recursivly calls itself if a matching char is found. 
- * Each recursive call  increments the offset by one increasing the position in the buffer and the searchString buffer. 
+ * This function does a memcmp of the searchString and the buffer for the size of the search string. 
+ * If they are found to be equal, TRUE (1) is returned to add one to the f->occ counter. 
  * 
- * The boundary condition that can occur if there is a potential match is not handled here. Instead the method terminates. The boundary will be 
- * caught in the next buffer because it only advances one char at a time and is as large as the maximum search string. 
- * 
+ */ 
+int fallbackAndVerify(int offset, FileOp *f, char searchString[]){
+	if (memcmp(f->buffer, searchString, offset) == 0){
+		return TRUE;
+	}else{
+		return FALSE;
+	}
+}
+
+
+/**
+ * Matching algo that recursivly calls itself until another first start char is found or the buffer is empty. 
+ * Each recursive call increments the offset by one increasing the position in the buffer and the searchString buffer. 
+ *  
  */
 void match(int offset, FileOp *f, char searchString[]){
-
-	// This doesn't get called when it should, fix it
-	if (((f->buffer[offset]) == (searchString[0] & 0xff)) && f->rewindSkip == FALSE && offset != 0){
+	/*
+	 * If the current char in the buffer matches the start of the search string, this is where we should jump to next for the next run of the method. 
+	 * However, a flag is set to prevent overwriting this if a duplicate value is found that matches the first searchString char.
+	 * Additionally, it is not permitted to have the first char in the buffer to trigger this (inf loop otherwise)
+	 */ 
+	if (((f->buffer[offset]) == (searchString[0] & 0xff)) && f->startCharFound == FALSE && offset != 0){
 		f->absoluteLocation+= offset;
-		f->rewindSkip = TRUE;
+		f->startCharFound = TRUE;
 	}
 
-	if (offset == strlen(searchString) && (f->buffer[offset - 1] == (searchString[offset - 1] & 0xff))){
-    	f->occ++;
-  	} else if (f->buffer[offset] == (searchString[offset] & 0xff)){
+	/*
+	 * If the search string is the same length as the offset and the previous n char match (based on strlen) 
+	 * then a match is found. Then match is called recursivley again if there has not been a determined next starting char.
+	 * If this flag has already been set, then there is no need to continue searching. 
+	 * 
+	 * This will never go out of bounds because the logic is short circuited if going back would put us out of bounds. 
+	 */ 
+	if (offset == strlen(searchString) && fallbackAndVerify(offset, f, searchString) == TRUE){
+		f->occ++;
+		if (f->startCharFound != TRUE){
+			match(++offset, f, searchString);
+		} 
+  	} else if (offset <= 20){
     	match(++offset, f, searchString);
   	}
 }
@@ -52,7 +76,6 @@ FileOp* prep(int argc, char *argv[]){
 
 /**
  * Writes what was printed on the console to the user defined file with error checking. 
- * 
  */ 
 void write(char fileName[], long long int fileSize, int occ){
 	FILE *toWrite = fopen(fileName, "w");
@@ -70,7 +93,6 @@ void write(char fileName[], long long int fileSize, int occ){
 	free(toWrite);
 }
 
-
 int main(int argc, char *argv[]){
 	// Sets up struct for writing
 	FileOp *f = prep(argc, argv);
@@ -78,28 +100,23 @@ int main(int argc, char *argv[]){
 	// Counts until file is done proc
   	while (f->finalized != TRUE){
 		move(f);
-		printf("Before match abs: %lld\n", f->absoluteLocation);
     	match(0, f, argv[2]);
 		/**
-		 * Changes the absolute location to +MAX_SEARCH_SIZE to skip where there would be no searches
-		 * only if the rewindSkip var is set to TRUE, otherwise we use that absolute location 
+		 * Resets the startCharFound flag and leaves absolute location alone. Otherwise
+		 * we push forward the size of MAX_SEARCH_SIZE
 		 */
-		printf("After match abs: %lld\n", f->absoluteLocation);
-
-		if (f->rewindSkip == TRUE){
-			f->rewindSkip = FALSE;
+		if (f->startCharFound == TRUE){
+			f->startCharFound = FALSE;
 		}else{
 			f->absoluteLocation+= MAX_SEARCH_SIZE;
 		}
-		printf("After match and if logic abs: %lld\n", f->absoluteLocation);
-
   	}
     printf("Size of file is %lld\nNumber of matches = %lld\n", f->fileSize, f->occ);
 
 	// Writes output
 	write(argv[3], f->fileSize, f->occ);
 
-	// Frees resources
+	// Free resources
   	freeFileOp(f);
   	return 0;
 }

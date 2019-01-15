@@ -16,7 +16,7 @@
 
 typedef struct FileOp {
   long long int fileSize;
-  int rewindSkip;
+  int startCharFound;
   int found;
   FILE *file;
   int finalized;

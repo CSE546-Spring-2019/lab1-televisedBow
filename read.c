@@ -21,7 +21,7 @@ FileOp* initFileOp(char fileName[]){
         printf(OPEN_ERROR);
         exit(1);
     }
-    f->rewindSkip = FALSE;
+    f->startCharFound = FALSE;
     f->fileSize = 0;
     f->found = FALSE;
     f->occ = 0;
@@ -39,10 +39,14 @@ FileOp* initFileOp(char fileName[]){
  */
 void readChars(FileOp *f){
     // Clears buffer junk, could be done much better but meh 
-    free(f->buffer);
-    f->buffer = calloc(MAX_SEARCH_SIZE, sizeof(MAX_SEARCH_SIZE*(sizeof(char))));
+    // free(f->buffer);
+    // f->buffer = calloc(MAX_SEARCH_SIZE, sizeof(MAX_SEARCH_SIZE*(sizeof(char))));
 
     int read = fread(f->buffer, sizeof(char), MAX_SEARCH_SIZE , f->file);
+    // Null term after the last read
+    if (read < MAX_SEARCH_SIZE && read > 0){
+        f->buffer[read] = '\0';
+    }
 
     // If nothing is read from the file, it is ready to be closed. 
     if (read == 0){
@@ -50,6 +54,9 @@ void readChars(FileOp *f){
         // Moves pointer to end of file to get the size
         fseek(f->file, 0, SEEK_END);
         f->fileSize = ftell(f->file);
+        // Clears the buffer to prevent dup search
+        free(f->buffer);
+        f->buffer = calloc(MAX_SEARCH_SIZE, sizeof(MAX_SEARCH_SIZE*(sizeof(char))));
         if (fclose(f->file) != 0){
             printf(CLOSE_ERROR);
             exit(1);
@@ -69,13 +76,14 @@ void freeFileOp(FileOp *f){
 }
 
 /**
- *  Resets the fseek position to just one more than the previous read. Then 
- *  calls readChars to read in the next N chars. 
+ * Resets the fseek position to the next char in the buffer that contains the start_char (or +20)
+ * Override in place to prevent moving out of bounds if at the end of the file. 
  */ 
 void move(FileOp *f){
-    if (fseek(f->file, f->absoluteLocation, SEEK_SET) != 0){
-        printf(READ_ERROR);
-        exit(1);
+    if (f->absoluteLocation > ftell(f->file)){
+        fseek(f->file, 0, SEEK_END);
+    }else{
+        fseek(f->file, f->absoluteLocation, SEEK_SET);
     }
     readChars(f);
 }

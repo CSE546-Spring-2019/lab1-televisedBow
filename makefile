@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g
+CFLAGS = -Wall
 DEPS = read.h
 OBJ = count.o read.o
 
