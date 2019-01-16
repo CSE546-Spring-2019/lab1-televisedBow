@@ -70,7 +70,6 @@ void readChars(FileOp *f){
 void freeFileOp(FileOp *f){
     if (f != NULL){
         free(f->buffer);
-        free(f->file);
         free(f);
     }
 }

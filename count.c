@@ -90,7 +90,6 @@ void write(char fileName[], long long int fileSize, int occ){
 		printf(ERROR_WRITE_CLOSE);
 		exit(1);
 	}
-	free(toWrite);
 }
 
 int main(int argc, char *argv[]){
